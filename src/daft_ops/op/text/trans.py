@@ -1,33 +1,37 @@
 import logging
+import time
 
-from daft import Expression
-
-from daft_ops.cls import StatefulOperator, StatefulExecSpec
+from daft_ops.cls import StatefulOperator
 
 logger = logging.getLogger(__name__)
 
 
 class Translator(StatefulOperator):
+
     def __init__(self, model_path: str):
         super().__init__()
+        self.model_path = model_path
+        print(f"Initializing Translator, and load model from {self.model_path}")
+        self._model = f"Model loaded from {self.model_path}"
 
-        print(f"Initializing Translator, and load model from {model_path}")
-
-    def row_wise_process(self, sentence, exec_spec: StatefulExecSpec):
-        logger.info("Translating: '%s'", sentence)
+    def row_wise_process(self, id: int, sentence: str) -> str:
+        print(f"{id}: \ttranslating: {sentence}")
+        time.sleep(0.1)
         return f"Translated: {sentence}"
 
-    def batch_wise_process(self, sentences, exec_spec: StatefulExecSpec):
-        logger.info("Translating %d sentences", len(sentences))
-        return [self.row_wise_process(sentence) for sentence in sentences]
+    def batch_wise_process(self, ids: list[int], sentences: list[str]) -> list[str]:
+        print(f"Translating {len(sentences)} sentences")
+        return [self.row_wise_process(id, sentence) for id, sentence in zip(ids, sentences)]
 
     def name(self) -> str | None:
         return "Translator"
 
-
-def translate(translator: Translator, sentence, exec_spec: StatefulExecSpec) -> Expression:
-    return translator.row_wise_process(sentence, exec_spec)
-
-
-def translates(translator: Translator, sentences, exec_spec: StatefulExecSpec) -> Expression:
-    return translator.batch_wise_process(sentences, exec_spec)
+# def translate(
+#         translator: Union[type[Translator], _LazyStatefulOperator],
+#         sentences,
+#         exec_spec: StatefulExecSpec | None = None,
+# ):
+#     return _wrap(
+#         operator=translator,
+#         exec_spec=exec_spec,
+#     )(sentences)

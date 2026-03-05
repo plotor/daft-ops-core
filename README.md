@@ -8,6 +8,8 @@ TODOs:
 - [ ] 支持 Batch 算子
 - [ ] 支持 Stateful 算子
 - [ ] 允许用户以 Daft 原生 UDF 方式使用
+- [ ] 支持 by name 传参
+- [ ] 支持常量参数
 
 ## License
 
